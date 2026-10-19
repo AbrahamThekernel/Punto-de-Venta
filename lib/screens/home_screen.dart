@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/usuarios.dart';
 import '../theme/app_theme.dart';
 import 'corte_caja_screen.dart';
 import 'inventario_screen.dart';
@@ -9,7 +10,9 @@ import 'reportes_screen.dart';
 import 'ventas_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.usuario});
+
+  final Usuario usuario;
 
   @override
   Widget build(BuildContext context) {
@@ -17,34 +20,44 @@ class HomeScreen extends StatelessWidget {
       _MenuOption(
         label: 'INVENTARIO',
         icon: Icons.inventory_2_outlined,
+        permiso: Permiso.inventario,
         builder: (_) => const InventarioScreen(),
       ),
       _MenuOption(
         label: 'VENTAS',
         icon: Icons.point_of_sale_outlined,
+        permiso: Permiso.ventas,
         builder: (_) => const VentasScreen(),
       ),
       _MenuOption(
         label: 'CORTE DE\nCAJA',
         icon: Icons.calculate_outlined,
+        permiso: Permiso.corteCaja,
         builder: (_) => const CorteCajaScreen(),
       ),
       _MenuOption(
         label: 'PROVEEDORES',
         icon: Icons.local_shipping_outlined,
+        permiso: Permiso.proveedores,
         builder: (_) => const ProveedoresScreen(),
       ),
       _MenuOption(
         label: 'REPORTES',
         icon: Icons.bar_chart_outlined,
+        permiso: Permiso.reportes,
         builder: (_) => const ReportesScreen(),
       ),
       _MenuOption(
         label: 'PAGOS',
         icon: Icons.payments_outlined,
+        permiso: Permiso.pagos,
         builder: (_) => const PagosScreen(),
       ),
     ];
+
+    final disponibles = items
+        .where((item) => usuario.puedeAcceder(item.permiso))
+        .toList();
 
     return Scaffold(
       body: SafeArea(
@@ -55,14 +68,42 @@ class HomeScreen extends StatelessWidget {
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '¡HOLA!!!',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1,
-                      color: AppColors.navy,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '¡HOLA!!!',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1,
+                            color: AppColors.navy,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.blue.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            usuario.etiquetaRol,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
+                              color: AppColors.blue,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   IconButton(
@@ -71,7 +112,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 12),
               const Text(
                 '¿QUÉ DESEA REALIZAR HOY?',
                 style: TextStyle(
@@ -89,7 +130,7 @@ class HomeScreen extends StatelessWidget {
                   mainAxisSpacing: 16,
                   childAspectRatio: 1.05,
                   children: [
-                    for (final item in items) _MenuCard(item: item),
+                    for (final item in disponibles) _MenuCard(item: item),
                   ],
                 ),
               ),
@@ -105,11 +146,13 @@ class _MenuOption {
   const _MenuOption({
     required this.label,
     required this.icon,
+    required this.permiso,
     required this.builder,
   });
 
   final String label;
   final IconData icon;
+  final Permiso permiso;
   final WidgetBuilder builder;
 }
 
