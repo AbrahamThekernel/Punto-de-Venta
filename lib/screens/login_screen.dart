@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/usuarios.dart';
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
 
@@ -14,6 +15,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usuario = TextEditingController();
   final _contrasena = TextEditingController();
 
+  String? _error;
+
   @override
   void dispose() {
     _usuario.dispose();
@@ -22,8 +25,15 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _entrar() {
+    final autenticado = autenticar(_usuario.text, _contrasena.text);
+    if (autenticado == null) {
+      setState(() => _error = 'Usuario o contraseña incorrectos');
+      return;
+    }
+
+    setState(() => _error = null);
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      MaterialPageRoute(builder: (_) => HomeScreen(usuario: autenticado)),
     );
   }
 
@@ -72,6 +82,28 @@ class _LoginScreenState extends State<LoginScreen> {
                 icon: Icons.lock_outline,
                 obscureText: true,
               ),
+              if (_error != null) ...[
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: AppColors.coral,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _error!,
+                        style: const TextStyle(
+                          color: AppColors.coral,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 48),
               Row(
                 children: [
