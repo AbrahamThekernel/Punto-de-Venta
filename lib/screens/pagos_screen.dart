@@ -1,26 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../data/caja_store.dart';
 import '../data/data.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
-
-enum MedioPago { efectivo, tarjeta, cartera, transferencia }
-
-extension on MedioPago {
-  String get label => switch (this) {
-        MedioPago.efectivo => 'EFECTIVO',
-        MedioPago.tarjeta => 'TARJETA',
-        MedioPago.cartera => 'CARTERA DIGITAL',
-        MedioPago.transferencia => 'TRANSFERENCIA',
-      };
-
-  IconData get icon => switch (this) {
-        MedioPago.efectivo => Icons.payments_outlined,
-        MedioPago.tarjeta => Icons.credit_card,
-        MedioPago.cartera => Icons.account_balance_wallet_outlined,
-        MedioPago.transferencia => Icons.swap_horiz,
-      };
-}
 
 class PagosScreen extends StatefulWidget {
   /// Total a cobrar. Por ahora es un valor de ejemplo; cuando conectes
@@ -90,6 +73,16 @@ class _PagosScreenState extends State<PagosScreen> {
     // y el guardado de la venta.
     await Future<void>.delayed(const Duration(milliseconds: 700));
     if (!mounted) return;
+
+    final referencia = _referencia.text.trim();
+    CajaStore.instance.registrarPago(
+      medio: _medio!,
+      total: widget.total,
+      recibido: _medio == MedioPago.efectivo ? _montoRecibido : null,
+      referencia: referencia.isEmpty ? null : referencia,
+      esCredito: _medio == MedioPago.tarjeta && _esCredito,
+    );
+
     setState(() {
       _procesando = false;
       _pagado = true;
