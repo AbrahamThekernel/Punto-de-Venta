@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/usuarios.dart';
+import '../main.dart';
 import '../theme/app_theme.dart';
 import 'corte_caja_screen.dart';
 import 'inventario_screen.dart';
@@ -59,6 +60,8 @@ class HomeScreen extends StatelessWidget {
         .where((item) => usuario.puedeAcceder(item.permiso))
         .toList();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -74,13 +77,13 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           '¡HOLA!!!',
                           style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 1,
-                            color: AppColors.navy,
+                            color: isDark ? Colors.white : AppColors.navy,
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -113,13 +116,13 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 '¿QUÉ DESEA REALIZAR HOY?',
                 style: TextStyle(
                   fontSize: 14,
                   letterSpacing: 1.2,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textMuted,
+                  color: isDark ? Colors.white70 : AppColors.textMuted,
                 ),
               ),
               const SizedBox(height: 26),
@@ -138,6 +141,15 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => PuntoDeVentaApp.of(context).toggleTheme(),
+        backgroundColor: AppColors.blue,
+        child: Icon(
+          isDark ? Icons.wb_sunny : Icons.dark_mode,
+          color: Colors.white,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
     );
   }
 }
